@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>RFID & Camera Reader</title>
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                color: #333;
+            }
+
+            .data * {
+                margin: 0;
+                line-height: 32px;
+		        max-width: 100%;
+            }
+
+            .data span {
+                font-weight: 400;
+            }
+
+            .slika {
+                position: relative;
+            }
+
+            .slika #canvas {
+                position: absolute;
+                top: 0;
+		        z-index:20;
+                left: 0;
+            }
+        </style>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <h1>RFID & Camera Reader</h1>
+        <div class="data">
+            <h2 class="plate"></h2>
+            <h3 class="confidence"></h3>
+            <br/>
+            <h3>Details</h3>
+            <ul class="details"></ul>
+            <br/>
+            <div class="slika">
+                <img id="source" src="kola.jpeg">
+                <canvas id="canvas"></canvas>
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script>
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const image = document.getElementById('source');
+
+            $.getJSON( "apidata.json", function( data ) {
+                results = data.results[0];
+                $.each(results['vehicle'], function(e) {
+                    $('.details').append("<li>" + e + ": <b>" + results['vehicle'][e][0]['name']) + "</b></li>";
+                });
+                
+                $('.plate').html("<span>Регистарска таблица: </span>" + results['plate']);
+                $('.confidence').html("<span>Доверливост: </span>" + results['confidence'] + "%");
+
+                ctx.beginPath();
+                canvas.width = data.img_width;
+                canvas.height = data.img_height;
+                ctx.strokeStyle = "red";
+                ctx.lineTo(results.coordinates[0].x, results.coordinates[0].y);
+                ctx.lineTo(results.coordinates[1].x, results.coordinates[1].y);
+                ctx.lineTo(results.coordinates[2].x, results.coordinates[2].y);
+                ctx.lineTo(results.coordinates[3].x, results.coordinates[3].y);
+                ctx.stroke();
+            });
+            
+            //setInterval(function() {
+                //location.reload();
+            //}, 4000);
+        </script>
+    </body>
+</html>
